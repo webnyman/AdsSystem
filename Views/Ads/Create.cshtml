@@ -1,0 +1,132 @@
+﻿@model Ads.Web.ViewModels.CreateAdViewModel
+@{
+    ViewData["Title"] = "Ny annons";
+}
+
+<h2>Ny annons</h2>
+
+<form asp-action="Create" method="post">
+    <fieldset class="mb-3">
+        <legend>Vem annonserar?</legend>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" asp-for="IsSubscriber" value="true" checked id="rbSub" />
+            <label class="form-check-label" for="rbSub">Prenumerant</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" asp-for="IsSubscriber" value="false" id="rbCompany" />
+            <label class="form-check-label" for="rbCompany">Företag</label>
+        </div>
+    </fieldset>
+
+    <div id="subFields" class="mb-3">
+        <label for="SubscriptionNumber" class="form-label">Prenumerationsnummer</label>
+        <div class="input-group">
+            <input asp-for="SubscriptionNumber" class="form-control" />
+            <button type="button" class="btn btn-outline-secondary" id="btnLookup">Hämta uppgifter</button>
+        </div>
+        <span asp-validation-for="SubscriptionNumber" class="text-danger"></span>
+    </div>
+
+    <div id="commonFields">
+        <div class="mb-3">
+            <label class="form-label">Namn</label>
+            <input asp-for="Namn" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Telefon</label>
+            <input asp-for="Telefon" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Utdelningsadress</label>
+            <input asp-for="Utdelningsadress" class="form-control" />
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Postnummer</label>
+                <input asp-for="Postnummer" class="form-control" />
+            </div>
+            <div class="col-md-8 mb-3">
+                <label class="form-label">Ort</label>
+                <input asp-for="Ort" class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <div id="companyFields" class="mb-3" style="display:none">
+        <div class="mb-3">
+            <label class="form-label">Organisationsnummer</label>
+            <input asp-for="Organisationsnummer" class="form-control" />
+        </div>
+        <h5>Fakturaadress</h5>
+        <div class="mb-3">
+            <label class="form-label">Adress</label>
+            <input asp-for="FakturaAdress" class="form-control" />
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Postnummer</label>
+                <input asp-for="FakturaPostnummer" class="form-control" />
+            </div>
+            <div class="col-md-8 mb-3">
+                <label class="form-label">Ort</label>
+                <input asp-for="FakturaOrt" class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <hr />
+
+    <h5>Annons</h5>
+    <div class="mb-3">
+        <label class="form-label">Rubrik</label>
+        <input asp-for="Rubrik" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Innehåll</label>
+        <textarea asp-for="Innehall" class="form-control" rows="4"></textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Varans pris (kr)</label>
+        <input asp-for="VaransPris" type="number" step="1" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Spara annons</button>
+    <a class="btn btn-secondary" href="@Url.Action("Index")">Avbryt</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const rbSub = document.getElementById('rbSub');
+        const rbCompany = document.getElementById('rbCompany');
+        const subFields = document.getElementById('subFields');
+        const companyFields = document.getElementById('companyFields');
+
+        function toggleSections() {
+            const isSub = rbSub.checked;
+            subFields.style.display = isSub ? '' : 'none';
+            companyFields.style.display = isSub ? 'none' : '';
+        }
+        rbSub.addEventListener('change', toggleSections);
+        rbCompany.addEventListener('change', toggleSections);
+        toggleSections();
+
+        document.getElementById('btnLookup').addEventListener('click', async () => {
+            const prenr = document.getElementById('SubscriptionNumber').value.trim();
+            if (!prenr) { alert('Ange prenumerationsnummer.'); return; }
+
+            const res = await fetch(`@Url.Action("LookupSubscriber", "Ads")?prenr=${encodeURIComponent(prenr)}`);
+            if (!res.ok) {
+                const msg = await res.text();
+                alert('Kunde inte hämta prenumerant: ' + msg);
+                return;
+            }
+            const dto = await res.json();
+            document.getElementById('Namn').value = dto.namn;
+            document.getElementById('Telefon').value = dto.telefon;
+            document.getElementById('Utdelningsadress').value = dto.adress;
+            document.getElementById('Postnummer').value = dto.postnr;
+            document.getElementById('Ort').value = dto.ort;
+        });
+    </script>
+}

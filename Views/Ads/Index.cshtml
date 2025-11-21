@@ -1,0 +1,33 @@
+﻿@model IEnumerable<Ads.Web.Models.Annonsor>
+
+<h2>Annonser</h2>
+<p><a class="btn btn-primary" href="@Url.Action("Create", "Ads")">Ny annons</a></p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Annonsör</th>
+            <th>Typ</th>
+            <th>Rubrik</th>
+            <th>Annonspris</th>
+            <th>Varans pris</th>
+            <th>Skapad</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var o in Model)
+        {
+            foreach (var ad in o.Annonser.OrderByDescending(a => a.Skapad))
+            {
+                <tr>
+                    <td>@o.Namn</td>
+                    <td>@(o.Typ == 'F' ? "Företag" : "Prenumerant")</td>
+                    <td>@ad.Rubrik</td>
+                    <td>@ad.Annonspris.ToString("0 kr")</td>
+                    <td>@ad.VaransPris.ToString("0 kr")</td>
+                    <td>@ad.Skapad.ToLocalTime()</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
