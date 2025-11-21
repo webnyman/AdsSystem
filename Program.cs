@@ -1,5 +1,6 @@
 using Ads.Web.Data;
 using Ads.Web.Services;
+using Ads.Web.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,11 @@ builder.Services.AddHttpClient<SubscriberApiClient>(client =>
     var baseUrl = builder.Configuration["SubscriberApi:BaseUrl"]!;
     client.BaseAddress = new Uri(baseUrl);
 });
+
+// DAL + logiklager
+builder.Services.AddScoped<IAnnonsorRepository, AnnonsorRepository>();
+builder.Services.AddScoped<IAnnonsRepository, AnnonsRepository>();
+builder.Services.AddScoped<IAdsService, AdsService>();
 
 var app = builder.Build();
 
