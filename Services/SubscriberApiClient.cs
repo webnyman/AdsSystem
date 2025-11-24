@@ -31,7 +31,6 @@ namespace Ads.Web.Services
 
         public async Task<SubscriberAdInfoDto?> GetAdInfoAsync(string subscriptionNumber, CancellationToken ct = default)
         {
-            // Endpointen vi gjorde igår: /api/Subscribers/{prenr}/ad-info
             var url = $"/api/Subscribers/{Uri.EscapeDataString(subscriptionNumber)}/ad-info";
             return await _http.GetFromJsonAsync<SubscriberAdInfoDto>(url, ct);
         }
